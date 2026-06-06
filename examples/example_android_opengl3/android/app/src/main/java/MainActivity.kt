@@ -14,25 +14,26 @@ class MainActivity : NativeActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Request overlay permission if not granted
         if (!Settings.canDrawOverlays(this)) {
             val intent = Intent(
                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:" + packageName)
+                Uri.parse("package:$packageName")
             )
             startActivityForResult(intent, 1001)
+        } else {
+            startOverlayService()
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 1001) {
-            if (Settings.canDrawOverlays(this)) {
-                // Permission granted - start overlay service
-                val intent = Intent(this, OverlayService::class.java)
-                startService(intent)
-            }
+        if (requestCode == 1001 && Settings.canDrawOverlays(this)) {
+            startOverlayService()
         }
+    }
+
+    private fun startOverlayService() {
+        startService(Intent(this, OverlayService::class.java))
     }
 
     fun showSoftInput() {
